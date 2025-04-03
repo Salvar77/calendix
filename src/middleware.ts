@@ -10,7 +10,7 @@ export async function middleware(req: NextRequest) {
 
   const now = Date.now();
   const expired =
-    session.lastActivity && now - session.lastActivity > 30 * 1000;
+    session.lastActivity && now - session.lastActivity > 60 * 1000;
 
   console.log("🔥 Middleware działa, path:", req.nextUrl.pathname);
   console.log("🧠 Sesja email:", session.email);
