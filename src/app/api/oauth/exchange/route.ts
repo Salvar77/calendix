@@ -39,5 +39,5 @@ export async function GET(req: NextRequest) {
   userSession.set("email", email);
   userSession.set("grantId", grantId);
 
-  redirect("/dashboard");
+  redirect("/");
 }
