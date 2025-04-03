@@ -17,9 +17,9 @@ export default async function Header() {
           Calendix
         </Link>
         <nav className="flex gap-4">
-          {/* <Link href={'/features'}>Features</Link>
-          <Link href={'/about'}>About</Link>
-          <Link href={'/pricing'}>Pricing</Link> */}
+          <Link href={"/features"}>Features</Link>
+          <Link href={"/about"}>About</Link>
+          <Link href={"/pricing"}>Pricing</Link>
         </nav>
       </div>
       <RightNav email={email} />
