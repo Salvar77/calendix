@@ -1,8 +1,10 @@
 import { session } from "@/libs/session";
-import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   const userSession = await session();
   await userSession.destroy();
-  redirect("/?logged-out=1");
+  return NextResponse.redirect(
+    new URL("/?logged-out=1", process.env.NEXT_PUBLIC_URL)
+  );
 }

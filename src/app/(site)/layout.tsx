@@ -1,9 +1,9 @@
 import Header from "@/app/components/Header";
 import type { Metadata } from "next";
-import {Noto_Sans} from "next/font/google";
+import { Noto_Sans } from "next/font/google";
 import "./../globals.css";
 
-const noto = Noto_Sans({subsets: ['latin'], weight: ['300', '400', '700']});
+const noto = Noto_Sans({ subsets: ["latin"], weight: ["300", "400", "700"] });
 
 export const metadata: Metadata = {
   title: "Calendlix",
@@ -24,5 +24,5 @@ export default function RootLayout({
         </main>
       </body>
     </html>
-);
+  );
 }

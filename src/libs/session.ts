@@ -8,7 +8,7 @@ export type MySessionData = {
   grantId?: string;
 };
 
-const sessionOptions = {
+export const sessionOptions = {
   password: process.env.SESSION_PASSWORD as string,
   cookieName: "calendix_session",
   cookieOptions: {
@@ -16,6 +16,7 @@ const sessionOptions = {
     sameSite: "lax",
     httpOnly: true,
     path: "/",
+    maxAge: 15,
   },
 };
 
