@@ -1,33 +1,29 @@
+import { NextRequest, NextResponse } from "next/server";
 import { nylas, nylasConfig } from "@/libs/nylas";
 import { session } from "@/libs/session";
 import { ProfileModel } from "@/models/Profile";
 import mongoose from "mongoose";
-import { redirect } from "next/navigation";
-import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
-  console.log("Received callback from Nylas");
-  const url = new URL(req.url as string);
+  // 1. Pobranie code z query
+  const url = new URL(req.url);
   const code = url.searchParams.get("code");
-
   if (!code) {
-    return Response.json("No authorization code returned from Nylas", {
+    return new Response("No authorization code returned from Nylas", {
       status: 400,
     });
   }
 
-  const codeExchangePayload = {
+  // 2. Wymiana code na token
+  const { grantId, email } = await nylas.auth.exchangeCodeForToken({
     clientSecret: nylasConfig.apiKey,
-    clientId: nylasConfig.clientId as string,
+    clientId: nylasConfig.clientId!,
     redirectUri: nylasConfig.callbackUri,
     code,
-  };
+  });
 
-  const response = await nylas.auth.exchangeCodeForToken(codeExchangePayload);
-  const { grantId, email } = response;
-
+  // 3. Zapis do bazy
   await mongoose.connect(process.env.MONGODB_URI as string);
-
   const profileDoc = await ProfileModel.findOne({ email });
   if (profileDoc) {
     profileDoc.grantId = grantId;
@@ -36,7 +32,14 @@ export async function GET(req: NextRequest) {
     await ProfileModel.create({ email, grantId });
   }
 
-  await session().set("email", email);
+  // 4. Pobierz sesję, ustaw w niej dane
+  const s = await session(req);
+  s.set("email", email);
+  s.set("grantId", grantId);
 
-  redirect("/dashboard");
+  // 5. Zapisz (commit) zmiany w sesji – to ustawia Set-Cookie w odpowiedzi
+  await s.commit();
+
+  // 6. Przekieruj na /dashboard
+  return NextResponse.redirect("/dashboard");
 }
