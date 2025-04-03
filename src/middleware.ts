@@ -5,25 +5,12 @@ import { sessionOptions, type MySessionData } from "@/libs/session";
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
-
   const session = await getIronSession<MySessionData>(req, res, sessionOptions);
 
-  const now = Date.now();
-  const expired =
-    session.lastActivity && now - session.lastActivity > 60 * 1000;
-
-  if (expired) {
-    await session.destroy();
-    return NextResponse.redirect(new URL("/", req.url));
-  }
-
   if (!session.email && req.nextUrl.pathname.startsWith("/dashboard")) {
-    await session.destroy();
+    console.log("🚪 Sesja wygasła – redirect na /");
     return NextResponse.redirect(new URL("/", req.url));
   }
-
-  session.lastActivity = now;
-  await session.save();
 
   return res;
 }
