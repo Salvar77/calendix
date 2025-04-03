@@ -8,14 +8,29 @@ export async function middleware(req: NextRequest) {
 
   const session = await getIronSession<MySessionData>(req, res, sessionOptions);
 
+  const now = Date.now();
+  const expired =
+    session.lastActivity && now - session.lastActivity > 15 * 1000;
+
   console.log("🔥 Middleware działa, path:", req.nextUrl.pathname);
   console.log("🧠 Sesja email:", session.email);
+  console.log("🕒 Sesja wygasła?", expired);
+
+  if (expired) {
+    console.log("⏳ Sesja wygasła – destroy i redirect");
+    await session.destroy();
+    return NextResponse.redirect(new URL("/", req.url));
+  }
 
   if (!session.email && req.nextUrl.pathname.startsWith("/dashboard")) {
     console.log("🚪 Nie zalogowany – redirect na /");
     await session.destroy();
     return NextResponse.redirect(new URL("/", req.url));
   }
+
+  // 🔄 Zaktualizuj timestamp aktywności
+  session.lastActivity = now;
+  await session.save();
 
   return res;
 }

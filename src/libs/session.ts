@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export type MySessionData = {
   email?: string;
   grantId?: string;
+  lastActivity?: number;
 };
 
 export const sessionOptions = {
