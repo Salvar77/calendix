@@ -17,7 +17,7 @@ export const sessionOptions = {
     sameSite: "lax",
     httpOnly: true,
     path: "/",
-    maxAge: 10,
+    maxAge: 120,
   },
 };
 
