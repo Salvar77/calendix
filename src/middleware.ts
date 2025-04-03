@@ -12,18 +12,12 @@ export async function middleware(req: NextRequest) {
   const expired =
     session.lastActivity && now - session.lastActivity > 60 * 1000;
 
-  console.log("🔥 Middleware działa, path:", req.nextUrl.pathname);
-  console.log("🧠 Sesja email:", session.email);
-  console.log("🕒 Sesja wygasła?", expired);
-
   if (expired) {
-    console.log("⏳ Sesja wygasła – destroy i redirect");
     await session.destroy();
     return NextResponse.redirect(new URL("/", req.url));
   }
 
   if (!session.email && req.nextUrl.pathname.startsWith("/dashboard")) {
-    console.log("🚪 Nie zalogowany – redirect na /");
     await session.destroy();
     return NextResponse.redirect(new URL("/", req.url));
   }
