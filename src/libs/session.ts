@@ -1,18 +1,16 @@
-import { getIronSession } from "iron-session";
-import { cookies } from "next/headers";
+import nextAppSession from "next-app-session";
 
 type MySessionData = {
   email?: string;
   grantId?: string;
 };
 
-const sessionOptions = {
-  password: process.env.SESSION_PASSWORD as string,
-  cookieName: "calendix_session",
-  cookieOptions: {
+export const session = nextAppSession<MySessionData>({
+  name: "calendix_session",
+  secret: process.env.SECRET,
+  cookie: {
+    httpOnly: true,
+    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   },
-};
-
-export const session = () =>
-  getIronSession<MySessionData>(cookies(), sessionOptions);
+});

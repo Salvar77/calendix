@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const url = new URL(req.url as string);
+  const url = new URL(req.url);
   const code = url.searchParams.get("code");
 
   if (!code) {
@@ -34,10 +34,10 @@ export async function GET(req: NextRequest) {
     await ProfileModel.create({ email, grantId });
   }
 
+  // ✅ POPRAWNE użycie next-app-session:
   const userSession = await session();
-  userSession.email = email;
-  userSession.grantId = grantId;
-  await userSession.save();
+  userSession.set("email", email);
+  userSession.set("grantId", grantId);
 
   redirect("/dashboard");
 }
