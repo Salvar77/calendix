@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   );
   return (
     <>
-      <div className="mt-8">
+      <div className="my-8">
         {bookedEvents.map((booking) => {
           const eventTypeDoc = eventTypeDocs.find(
             (etd) => (etd._id as string).toString() === booking.eventTypeId

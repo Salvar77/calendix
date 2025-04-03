@@ -40,5 +40,5 @@ export async function GET(req: NextRequest) {
   userSession.grantId = grantId;
   await userSession.save();
 
-  return res; // 🔥 to jest klucz – zwracamy response z redirectem
+  return res;
 }
