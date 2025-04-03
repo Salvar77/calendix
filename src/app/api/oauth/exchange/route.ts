@@ -34,10 +34,10 @@ export async function GET(req: NextRequest) {
     await ProfileModel.create({ email, grantId });
   }
 
-  // poprawne ustawienie sesji przy next-app-session:
   const userSession = await session();
   userSession.email = email;
   userSession.grantId = grantId;
+  await userSession.save();
 
   redirect("/dashboard");
 }
