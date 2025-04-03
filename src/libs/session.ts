@@ -9,7 +9,7 @@ export type MySessionData = {
 };
 
 const sessionOptions = {
-  password: process.env.SESSION_PASSWORD as string, // min 32 losowe znaki
+  password: process.env.SESSION_PASSWORD as string,
   cookieName: "calendix_session",
   cookieOptions: {
     secure: true,
