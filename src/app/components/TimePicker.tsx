@@ -1,42 +1,48 @@
 "use client";
-import {weekdaysNames, weekdaysShortNames} from "@/libs/shared";
-import {BookingTimes, WeekdayName} from "@/libs/types";
+import { weekdaysNames, weekdaysShortNames } from "@/libs/shared";
+import { BookingTimes, WeekdayName } from "@/libs/types";
 import axios from "axios";
-import {clsx} from "clsx";
+import { clsx } from "clsx";
 import {
-  addDays, addMinutes,
-  addMonths, endOfDay,
+  addDays,
+  addMinutes,
+  addMonths,
+  endOfDay,
   format,
-  getDay, isAfter,
+  getDay,
+  isAfter,
   isBefore,
   isEqual,
   isFuture,
   isLastDayOfMonth,
-  isToday, startOfDay,
-  subMonths
+  isToday,
+  startOfDay,
+  subMonths,
 } from "date-fns";
-import {ChevronLeft, ChevronRight} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import {TimeSlot} from "nylas";
-import {useEffect, useState} from "react";
-import {BounceLoader, PulseLoader} from "react-spinners";
+import { TimeSlot } from "nylas";
+import { useEffect, useState } from "react";
+import { BounceLoader, PulseLoader } from "react-spinners";
 
 export default function TimePicker({
   bookingTimes,
   length,
   meetingUri,
   username,
-}:{
-  bookingTimes:BookingTimes
-  length:number;
-  meetingUri:string;
-  username:string;
+}: {
+  bookingTimes: BookingTimes;
+  length: number;
+  meetingUri: string;
+  username: string;
 }) {
   const currentDate = new Date();
   const [activeMonthDate, setActiveMonthDate] = useState(currentDate);
-  const [activeMonthIndex, setActiveMonthIndex] = useState(activeMonthDate.getMonth());
+  const [activeMonthIndex, setActiveMonthIndex] = useState(
+    activeMonthDate.getMonth()
+  );
   const [activeYear, setActiveYear] = useState(activeMonthDate.getFullYear());
-  const [selectedDay, setSelectedDay] = useState<null|Date>(null);
+  const [selectedDay, setSelectedDay] = useState<null | Date>(null);
   const [busySlots, setBusySlots] = useState<TimeSlot[]>([]);
   const [busySlotsLoaded, setBusySlotsLoaded] = useState(false);
 
@@ -45,15 +51,13 @@ export default function TimePicker({
       setBusySlots([]);
       setBusySlotsLoaded(false);
       const params = new URLSearchParams();
-      params.set('username', username);
-      params.set('from', startOfDay(selectedDay).toISOString());
-      params.set('to', endOfDay(selectedDay).toISOString());
-      axios
-        .get(`/api/busy?`+params.toString())
-        .then(response => {
-          setBusySlots(response.data);
-          setBusySlotsLoaded(true);
-        });
+      params.set("username", username);
+      params.set("from", startOfDay(selectedDay).toISOString());
+      params.set("to", endOfDay(selectedDay).toISOString());
+      axios.get(`/api/busy?` + params.toString()).then((response) => {
+        setBusySlots(response.data);
+        setBusySlotsLoaded(true);
+      });
     }
   }, [selectedDay]);
 
@@ -83,10 +87,11 @@ export default function TimePicker({
 
   const firstDayOfCurrentMonth = new Date(activeYear, activeMonthIndex, 1);
   const firstDayOfCurrentMonthWeekdayIndex = getDay(firstDayOfCurrentMonth);
-  const emptyDaysCount = firstDayOfCurrentMonthWeekdayIndex === 0
-    ? 6
-    : firstDayOfCurrentMonthWeekdayIndex - 1;
-  const emptyDaysArr = (new Array(emptyDaysCount)).fill('', 0, emptyDaysCount);
+  const emptyDaysCount =
+    firstDayOfCurrentMonthWeekdayIndex === 0
+      ? 6
+      : firstDayOfCurrentMonthWeekdayIndex - 1;
+  const emptyDaysArr = new Array(emptyDaysCount).fill("", 0, emptyDaysCount);
   const daysNumbers = [firstDayOfCurrentMonth];
   do {
     const lastAddedDay = daysNumbers[daysNumbers.length - 1];
@@ -96,15 +101,18 @@ export default function TimePicker({
   let selectedDayConfig = null;
   const bookingHours = [];
   if (selectedDay) {
-    const weekdayNameIndex = format(selectedDay, "EEEE").toLowerCase() as WeekdayName;
+    const weekdayNameIndex = format(
+      selectedDay,
+      "EEEE"
+    ).toLowerCase() as WeekdayName;
     selectedDayConfig = bookingTimes?.[weekdayNameIndex];
     if (selectedDayConfig) {
-      const [hoursFrom,minutesFrom] = selectedDayConfig.from.split(':');
+      const [hoursFrom, minutesFrom] = selectedDayConfig.from.split(":");
       const selectedDayFrom = new Date(selectedDay);
       selectedDayFrom.setHours(parseInt(hoursFrom));
       selectedDayFrom.setMinutes(parseInt(minutesFrom));
       const selectedDayTo = new Date(selectedDay);
-      const [hoursTo,minutesTo] = selectedDayConfig.to.split(':');
+      const [hoursTo, minutesTo] = selectedDayConfig.to.split(":");
       selectedDayTo.setHours(parseInt(hoursTo));
       selectedDayTo.setMinutes(parseInt(minutesTo));
       let a = selectedDayFrom;
@@ -113,12 +121,12 @@ export default function TimePicker({
           bookingHours.push(a);
         }
         a = addMinutes(a, 30);
-      } while(isBefore(addMinutes(a, length), selectedDayTo));
+      } while (isBefore(addMinutes(a, length), selectedDayTo));
     }
   }
 
   function prevMonth() {
-    setActiveMonthDate(prev => {
+    setActiveMonthDate((prev) => {
       const newActiveMonthDate = subMonths(prev, 1);
       setActiveMonthIndex(newActiveMonthDate.getMonth());
       setActiveYear(newActiveMonthDate.getFullYear());
@@ -127,7 +135,7 @@ export default function TimePicker({
   }
 
   function nextMonth() {
-    setActiveMonthDate(prev => {
+    setActiveMonthDate((prev) => {
       const newActiveMonthDate = addMonths(prev, 1);
       setActiveMonthIndex(newActiveMonthDate.getMonth());
       setActiveYear(newActiveMonthDate.getFullYear());
@@ -135,38 +143,42 @@ export default function TimePicker({
     });
   }
 
-  function handleDayClick(day:Date) {
+  function handleDayClick(day: Date) {
     setSelectedDay(day);
   }
-
 
   return (
     <div className="flex">
       <div className="p-8">
         <div className="flex items-center">
           <span className="grow">
-            {format(new Date(activeYear, activeMonthIndex, 1), "MMMM")} {activeYear}
+            {format(new Date(activeYear, activeMonthIndex, 1), "MMMM")}{" "}
+            {activeYear}
           </span>
           <button onClick={prevMonth}>
-            <ChevronLeft/>
+            <ChevronLeft />
           </button>
           <button onClick={nextMonth}>
-            <ChevronRight/>
+            <ChevronRight />
           </button>
         </div>
         <div className="inline-grid gap-2 grid-cols-7 mt-2">
           {weekdaysShortNames.map((weekdayShortName) => (
             <div
               key={weekdayShortName}
-              className="text-center uppercase text-sm text-gray-500 font-bold">
+              className="text-center uppercase text-sm text-gray-500 font-bold"
+            >
               {weekdayShortName}
             </div>
           ))}
           {emptyDaysArr.map((empty, emptyIndex) => (
             <div key={emptyIndex} />
           ))}
-          {daysNumbers.map(n => {
-            const weekdayNameIndex = format(n, "EEEE").toLowerCase() as WeekdayName;
+          {daysNumbers.map((n) => {
+            const weekdayNameIndex = format(
+              n,
+              "EEEE"
+            ).toLowerCase() as WeekdayName;
             const weekdayConfig = bookingTimes?.[weekdayNameIndex];
             const isActiveInBookingTimes = weekdayConfig?.active;
             const canBeBooked = isFuture(n) && isActiveInBookingTimes;
@@ -174,18 +186,23 @@ export default function TimePicker({
             return (
               <div
                 key={n.toISOString()}
-                className="text-center text-sm text-gray-400 font-bold ">
+                className="text-center text-sm text-gray-400 font-bold "
+              >
                 <button
                   disabled={!canBeBooked}
                   onClick={() => handleDayClick(n)}
                   className={clsx(
                     "w-8 h-8 rounded-full inline-flex items-center justify-center",
-                    canBeBooked && !isSelected ? "bg-blue-100 text-blue-700" : "",
-                    isToday(n) && !isSelected ? "bg-gray-200 text-gray-500" : '',
-                    isSelected ? "bg-blue-500 text-white" : "",
+                    canBeBooked && !isSelected
+                      ? "bg-blue-100 text-blue-700"
+                      : "",
+                    isToday(n) && !isSelected
+                      ? "bg-gray-200 text-gray-500"
+                      : "",
+                    isSelected ? "bg-blue-500 text-white" : ""
                   )}
                 >
-                  {format(n, 'd')}
+                  {format(n, "d")}
                 </button>
               </div>
             );
@@ -203,15 +220,17 @@ export default function TimePicker({
                 <PulseLoader color="#3B82F6" />
               </div>
             )}
-            {busySlotsLoaded && bookingHours.map(bookingTime => (
-              <div key={bookingTime.toISOString()}>
-                <Link
-                  href={`/${username}/${meetingUri}/${bookingTime.toISOString()}`}
-                  className="w-full block border-2 rounded-lg border-blue-600 text-blue-600 font-semibold">
-                  {format(bookingTime, 'HH:mm')}
-                </Link>
-              </div>
-            ))}
+            {busySlotsLoaded &&
+              bookingHours.map((bookingTime) => (
+                <div key={bookingTime.toISOString()}>
+                  <Link
+                    href={`/${username}/${meetingUri}/${bookingTime.toISOString()}`}
+                    className="w-full block border-2 rounded-lg border-blue-600 text-blue-600 font-semibold"
+                  >
+                    {format(bookingTime, "HH:mm")}
+                  </Link>
+                </div>
+              ))}
             <div className="mb-8">&nbsp;</div>
           </div>
         </div>
