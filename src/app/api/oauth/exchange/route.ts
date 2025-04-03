@@ -6,7 +6,8 @@ import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
+  console.log("Received callback from Nylas");
+  const url = new URL(req.url as string);
   const code = url.searchParams.get("code");
 
   if (!code) {
@@ -15,13 +16,14 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const response = await nylas.auth.exchangeCodeForToken({
+  const codeExchangePayload = {
     clientSecret: nylasConfig.apiKey,
     clientId: nylasConfig.clientId as string,
     redirectUri: nylasConfig.callbackUri,
     code,
-  });
+  };
 
+  const response = await nylas.auth.exchangeCodeForToken(codeExchangePayload);
   const { grantId, email } = response;
 
   await mongoose.connect(process.env.MONGODB_URI as string);
@@ -34,10 +36,7 @@ export async function GET(req: NextRequest) {
     await ProfileModel.create({ email, grantId });
   }
 
-  // ✅ POPRAWNE użycie next-app-session:
-  const userSession = await session();
-  userSession.set("email", email);
-  userSession.set("grantId", grantId);
+  await session().set("email", email);
 
   redirect("/");
 }
