@@ -1,9 +1,9 @@
 import { nylas, nylasConfig } from "@/libs/nylas";
-import { session } from "@/libs/session";
+import { getSessionRoute } from "@/libs/session";
 import { ProfileModel } from "@/models/Profile";
 import mongoose from "mongoose";
 import { redirect } from "next/navigation";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
@@ -34,10 +34,12 @@ export async function GET(req: NextRequest) {
     await ProfileModel.create({ email, grantId });
   }
 
-  // ✅ POPRAWNE użycie next-app-session:
-  const userSession = await session();
-  userSession.set("email", email);
-  userSession.set("grantId", grantId);
+  // poprawne ustawienie iron-session:
+  const res = new NextResponse(null, { status: 302 });
+  const userSession = await getSessionRoute(req, res);
+  userSession.email = email;
+  userSession.grantId = grantId;
+  await userSession.save();
 
   redirect("/dashboard");
 }
