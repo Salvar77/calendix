@@ -2,7 +2,6 @@ import { nylas, nylasConfig } from "@/libs/nylas";
 import { getSessionRoute } from "@/libs/session";
 import { ProfileModel } from "@/models/Profile";
 import mongoose from "mongoose";
-import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -10,7 +9,7 @@ export async function GET(req: NextRequest) {
   const code = url.searchParams.get("code");
 
   if (!code) {
-    return Response.json("No authorization code returned from Nylas", {
+    return NextResponse.json("No authorization code returned from Nylas", {
       status: 400,
     });
   }
@@ -34,12 +33,12 @@ export async function GET(req: NextRequest) {
     await ProfileModel.create({ email, grantId });
   }
 
-  // poprawne ustawienie iron-session:
-  const res = new NextResponse(null, { status: 302 });
+  // Ustaw sesję
+  const res = NextResponse.redirect(new URL("/dashboard", req.url));
   const userSession = await getSessionRoute(req, res);
   userSession.email = email;
   userSession.grantId = grantId;
   await userSession.save();
 
-  redirect("/dashboard");
+  return res; // 🔥 to jest klucz – zwracamy response z redirectem
 }

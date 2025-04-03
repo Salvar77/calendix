@@ -20,7 +20,7 @@ export default async function Header() {
         <nav className="flex gap-4">
           <Link href={"/features"}>Features</Link>
           <Link href={"/about"}>About</Link>
-          <Link href={"/pricing"}>Pricingg</Link>
+          <Link href={"/pricing"}>Pricing</Link>
         </nav>
       </div>
       <RightNav email={email} />
