@@ -41,5 +41,5 @@ export async function GET(req: NextRequest) {
   userSession.grantId = grantId;
   await userSession.save();
 
-  redirect("/dashboard");
+  redirect("/");
 }
