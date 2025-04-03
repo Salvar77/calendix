@@ -1,17 +1,19 @@
-import {nylas, nylasConfig} from "@/libs/nylas";
-import {session} from "@/libs/session";
-import {ProfileModel} from "@/models/Profile";
+import { nylas, nylasConfig } from "@/libs/nylas";
+import { session } from "@/libs/session";
+import { ProfileModel } from "@/models/Profile";
 import mongoose from "mongoose";
-import {redirect} from "next/navigation";
-import {NextRequest} from "next/server";
+import { redirect } from "next/navigation";
+import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
   console.log("Received callback from Nylas");
   const url = new URL(req.url as string);
-  const code = url.searchParams.get('code');
+  const code = url.searchParams.get("code");
 
   if (!code) {
-    return Response.json("No authorization code returned from Nylas", {status: 400});
+    return Response.json("No authorization code returned from Nylas", {
+      status: 400,
+    });
   }
 
   const codeExchangePayload = {
@@ -26,15 +28,15 @@ export async function GET(req: NextRequest) {
 
   await mongoose.connect(process.env.MONGODB_URI as string);
 
-  const profileDoc = await ProfileModel.findOne({email});
+  const profileDoc = await ProfileModel.findOne({ email });
   if (profileDoc) {
     profileDoc.grantId = grantId;
     await profileDoc.save();
   } else {
-    await ProfileModel.create({email, grantId});
+    await ProfileModel.create({ email, grantId });
   }
 
-  await session().set('email', email);
+  await session().set("email", email);
 
-  redirect('/');
+  redirect("/dashboard");
 }
